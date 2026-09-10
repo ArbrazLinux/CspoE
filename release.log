@@ -1,0 +1,54 @@
+# CspoE is developped and maintained by BreizhStakePool.io 
+#
+# Help us to improve this tool / Please consider a donation and/or delegation to [BZH].
+# Pool ID : 9b9ad921921db31ca91cd6dfdf11f5efee8c1ab94671a6b4a8edc748
+# donation address : addr1qyv0cv6ju9j25lx7daedsy5n0gtp0h0pf4e0rn0qzz3hesq8e4wmcqungnssk5hwp52hr0zazkx574n4s49gqzz7fqgq5j8nu2
+#
+# Consider delegate your voting power to our Breizh DRep [BZH] 
+# drep ID : drep1yf64m233qq6nutjpkh4uc7jncr2gxwtlsq7n68v38ka2l9qez8h3h
+
+2026-09-09 — Public release baseline
+
+- POOL_FIRST_EPOCH is the single configurable lower boundary. It represents the first active pool epoch, normally registration epoch + 2.
+- Initialization observes network epoch N, archives only POOL_FIRST_EPOCH through N-2, and keeps N-1 plus N in live storage.
+- N-1 is reward-pending. A transition rebuilds it when it becomes N-2 and archives it only after reward evidence and cascade validation succeed.
+- Initialization is sequential and Blockfrost-backed. An optional operator-supplied legacy reference remains available for exact replay audits.
+- Existing stake_address identity rules, zero-holder recovery, deregistration handling, exact pool_data shape, reward cascades, and transaction rollback behavior are preserved.
+- MySQL canonical and eleven-table legacy-compatible projections, PHP pages, GUI, Telegram services, health monitoring, and systemd automation remain release components.
+- The GUI sortable-item implementation compares values directly and does not call the recursively routed PySide6 virtual comparator.
+- Operational defaults, paths, identifiers, credentials, pool snapshots, SQL backups, caches, virtual environments, development reports, and test outputs were removed from the public package.
+- Generic cspoe-* systemd units are rendered by the installer from the configured installation path and service account.
+- install.sh installs Ubuntu dependencies, creates the virtual environment, optionally prepares MySQL/PHP, installs systemd units, and runs offline safety tests. Initialization stays an explicit operator action.
+- The standardized BreizhStakePool.io support notice is the only intentional pool-specific attribution in source and documentation headers.
+- Valid JSON runtime files cannot contain comments; data/awards.json is therefore the documented exception to the source-header rule.
+- release.log is append-only and is the reference for future release decisions.
+- CspoE_release_selftest.py enforces the clean-tree, generic-configuration, attribution-header, and required-component release contract.
+
+2026-09-09 — Quota-safe initialization and operator awards
+
+- Engine version is advanced to 6.3.12 for the resumable initialization contract.
+- Initialization now persists every Blockfrost HTTP attempt in blockfrost_usage.json and uses a configurable local daily budget plus reserve.
+- The default local guard is 45000 requests with a 2000-request reserve. It is intentionally conservative and does not claim to mirror shared provider-account usage.
+- Reaching the local guard or receiving HTTP 402, repeated 429, or 418 produces a structured paused result and exit code 75; provider-limit responses are never hammered.
+- initialization_checkpoint.json, completed canonical snapshots, and reusable Blockfrost account/pool histories make `--write --resume` incremental across UTC quota resets.
+- If the network epoch advances during a multi-day initialization, only stale staged live/cache data is retired; the settled archive is extended to the new N-2 target.
+- Full dry-run reconstruction is not recommended for large histories because temporary output cannot be resumed and would duplicate requests during the subsequent write run.
+- awards.json is operator-owned optional data. Missing, whitespace-only, and empty-list files all mean no awards; malformed non-empty JSON remains a blocking configuration error.
+- Offline self-tests cover counter persistence, proactive reserve, midnight UTC reset, HTTP 402/429 handling, snapshot reuse, and optional awards.
+
+2026-09-09 — Portable installer configuration parser
+
+- Engine/release version is advanced to 6.3.13.
+- install.sh no longer uses an escaped double quote inside an awk regular-expression literal, which produced warnings with Ubuntu 22.04 mawk.
+- Configuration parsing now compares normalized key names directly and supports unquoted, single-quoted, and double-quoted values with surrounding whitespace.
+- A standalone offline regression test requires a clean stderr from `install.sh --check`.
+
+2026-09-09 — Isolated desktop Qt runtime
+
+- run_desktop.sh resolves and exclusively selects the plugin tree bundled with the installed PySide6, preventing Ubuntu Qt 6.2 plugins from being mixed with the virtualenv Qt 6.11 runtime.
+- The launcher selects xcb or Wayland only when the corresponding graphical-session variables are present and returns an actionable error instead of allowing a native Qt abort when no display is available.
+- `--diagnose` reports the selected platform and paths without opening the GUI; no credential values are included.
+- The Ubuntu installer now includes the complete xcb/xkb runtime dependency set needed by the PySide6 wheel.
+- The GUI window title uses the configured pool ticker instead of a development-pool name.
+- GUI initialization no longer passes the obsolete `--legacy-source` option or destroys resumable staging. It builds, resumes, and activates through the quota-safe checkpoint contract.
+- An offline launcher regression test verifies headless rejection and replacement of inherited system Qt plugin paths.
